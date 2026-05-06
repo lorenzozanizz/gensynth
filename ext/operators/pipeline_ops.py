@@ -460,6 +460,7 @@ class CaptureAndModifyNodeProperties(Operator):
         UniqueLogger.quick_log("INPUTS:")
         UniqueLogger.quick_log("-" * 60)
         for input_socket in node.inputs:
+            # e.g. nodes
             UniqueLogger.quick_log(f"  Name: {input_socket.name}")
             UniqueLogger.quick_log(f"  Type: {input_socket.type}")
             UniqueLogger.quick_log(f"  Default Value: {input_socket.default_value}")

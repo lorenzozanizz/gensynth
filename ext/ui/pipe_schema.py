@@ -256,7 +256,7 @@ class RandomizeNodeIntensityOperation(MaterialSimplePropertySchema):
     @staticmethod
     def extract_config_from_ui(context, operation) -> dict:
         dic = {
-            "value": ValueTargeter.extract_data(context),
+            wsk.VALUE.value: ValueTargeter.extract_data(context),
             "distribution": NodeDistributionSelector.extract_data(context, dim=1),
             wsk.OFFSET.value: OffsetMode.extract_data(context)
         }
@@ -287,3 +287,22 @@ class BezierLockCameraOperation(PipeSchema):
             TypedObjectTargeter.setup_from_config(config[wsk.TYPED_OBJ.value], context )
 
 
+@PipeSchemaRegistry.register(PipeNames.LINE.value)
+class MoveAlongLineOperation(PipeSchema):
+
+    @staticmethod
+    def extract_config_from_ui(context, operation) -> dict:
+        dic = {
+            wsk.TYPED_OBJ.value: TypedObjectTargeter.extract_data(context),
+            wsk.OBJECT.value: ObjectTargeter.extract_data(context),
+        }
+        return dic
+
+    @staticmethod
+    def apply_config_to_ui(context, operation, config) -> None:
+        if not config:
+            ObjectTargeter.reset(context)
+            TypedObjectTargeter.reset(context)
+        else:
+            ObjectTargeter.setup_from_config(config[wsk.OBJECT.value], context)
+            TypedObjectTargeter.setup_from_config(config[wsk.TYPED_OBJ.value], context)

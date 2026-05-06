@@ -171,6 +171,36 @@ class RandomizeScaleOperation(NumericRandomOperation):
         return RandomizeScaleOperation.ScaleContext(self.targets)
 
 
+@OperationRegistry.register(PipeNames.INTENSITY.value)
+class RandomizeIntensityOperation(PipelineOperation):
+
+    def compile(self, context, config: dict):
+        # Note: the value is assumed to be scalar!... for now
+        # The distribution will be compiled (either a node or a preset distribution)
+        self.distribution = SamplerCompiler.compile(config[wsk.NODE_DISTRIBUTION.value], dim=1)
+        self.targets = config[wsk.OBJECT.value][wsk.OBJECT_NAMES.value]
+        # This is a boolean value
+        self.offset_mode = config[wsk.OFFSET.value][wsk.OFFSET_MODE.value]
+
+    def execute(self, context):
+        pass
+
+
+    class PropertyValueContext:
+
+        def __enter__(self):
+            pass
+
+        def __exit__(self, exc_type, exc_val, exc_tb):
+            pass
+
+    def get_global_context(self):
+        pass
+
+    def get_frame_context(self):
+        pass
+
+
 @OperationRegistry.register(PipeNames.POSITION.value)
 class RandomizePositionOperation(NumericRandomOperation):
 
@@ -439,4 +469,32 @@ class BezierLockOperation(PipelineOperation):
                 self.target.constraints.remove(self.constraint)
             self.target.location = self.initial_camera_pos
             self.target.rotation_euler = self.initial_camera_rot
+
+@OperationRegistry.register(PipeNames.LINE.value)
+class MoveAlongLineOperation(PipelineOperation):
+
+    def __init__(self):
+        self.targets = None
+        self.bezier_distribution = None
+
+    def compile(self, context, config: dict):
+        self.targets = config[wsk.OBJECT.value][wsk.OBJECT_NAMES.value]
+        curve = config[wsk.TYPED_OBJ.value][wsk.TYPED_OBJ_NAME.value]
+        curve_obj = bpy.data.objects[curve]
+
+        self.bezier_distribution = BezierDistribution(
+            BezierCurve.from_blender_curve(curve_obj),
+        )
+
+    def execute(self, context):
+        point = self.bezier_distribution.sample()
+        for item in self.targets:
+            obj = bpy.data.objects[item]
+            obj.location = point
+
+    def get_global_context(self):
+        return RandomizePositionOperation.PositionContext(self.targets)
+
+    def get_frame_context(self):
+        return RandomizePositionOperation.PositionContext(self.targets)
 

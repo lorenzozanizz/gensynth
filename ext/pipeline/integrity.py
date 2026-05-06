@@ -107,7 +107,10 @@ class IntensityValidator(PipeValidator):
 
     @staticmethod
     def validate(pipe: PipelineOperation, config: dict) -> bool:
-        return False
+        # Just ensure that the node does exist and ensure the distribution is OK.
+        val_ok = ValueTargeterValidator.validate(partial_config=config[wsk.VALUE.value])
+        dis_ok = NodeDistributionSelectorValidator.validate(partial_config=config[wsk.NODE.value])
+        return val_ok and dis_ok
 
 @ValidatorRegistry.register(PipeNames.METALLIC.value)
 class MetallicValidator(PipeValidator):
@@ -131,11 +134,23 @@ class CameraBezierLockValidator(PipeValidator):
     @staticmethod
     def validate(pipe: PipelineOperation, config: dict) -> bool:
 
-        obj_ok = TypedObjectValidator.validate(config[wsk.TYPED_OBJ.value])
+        obj_ok = TypedObjectValidator.validate(partial_config=config[wsk.TYPED_OBJ.value])
         conditional = ConditionalValidator(ObjectTargeterValidator)
         pos_ok = conditional.validate(partial_config=config[wsk.OBJECT.value])
 
         return obj_ok and pos_ok
+
+@ValidatorRegistry.register(PipeNames.LINE.value)
+class MoveAlongLineValidator(PipeValidator):
+
+
+    @staticmethod
+    def validate(pipe: PipelineOperation, config: dict) -> bool:
+
+        obj_ok = TypedObjectValidator.validate(partial_config=config[wsk.TYPED_OBJ.value])
+        tar_ok = ObjectTargeterValidator.validate(partial_config=config[wsk.OBJECT.value])
+
+        return obj_ok and tar_ok
 
 
 class WidgetValidator(metaclass=ABCMeta):
@@ -165,8 +180,6 @@ class TypedObjectValidator(WidgetValidator):
 
     @staticmethod
     def validate(partial_config: dict) -> bool:
-        UniqueLogger.quick_log("Validate typed" + partial_config.__str__())
-
         obj = partial_config[wsk.TYPED_OBJ_NAME.value]
         # The pipe is not OK if it has no target. "OK" means useful and working.
         if not obj:

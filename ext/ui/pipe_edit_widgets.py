@@ -767,7 +767,7 @@ class PropertyTargeter(EditorWidget):
         scene = context.scene
         box = layout.box().row()
         box.label(text="Target:")
-        box.label(text=scene.targeted_objects_display, icon='OBJECT_DATA')
+        box.label(text=scene.targeted_objects_display.obj_name, icon='OBJECT_DATA')
         box.operator(Labels.CAPTURE_GENERAL_NODE.value, text="Capture Selected", icon='EYEDROPPER')
 
         selected_node_property = True
@@ -786,8 +786,8 @@ class ValueTargeter(EditorWidget):
     def draw(layout, context):
         scene = context.scene
         box = layout.box().row()
-
         box.label(text="Value Node:")
+
         mat_prop = scene.targeted_value_node
         text_label = f"{mat_prop.mat_name} > {mat_prop.node_label}" if (mat_prop.mat_name and mat_prop.node_label) else "None"
         box.label(text=text_label, icon='OBJECT_DATA')
