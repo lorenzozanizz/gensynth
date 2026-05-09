@@ -71,7 +71,6 @@ class AxisSetMask:
         :param value:
         :return:
         """
-        UniqueLogger.quick_log("Value is: " + value.__str__())
         idx = 0
         if self.x:
             vector_attribute.x += value[idx]
@@ -284,11 +283,11 @@ class RandomizeMoveOperation(PipelineOperation):
         # The distribution will be compiled ( a discrete uniform )
         self.positions = config[wsk.POSITION.value][wsk.POSITION_LIST.value]
         self.distribution = SamplerCompiler.make_distribution(
-        Distribution.CATEGORICAL_UNIFORM.value, 1)
+        Distribution.CATEGORICAL_UNIFORM.name, 1, n=len(self.positions) - 1)
 
     def execute(self, context):
         # One dimensional result, a discrete uniform variable
-        result = min(max(0, self.distribution.sample()[0]), len(self.targets))
+        result = min(max(0, self.distribution.sample()[0]), len(self.positions) - 1)
 
         # Extract a position randomly:
         position = self.positions[result]
@@ -296,6 +295,86 @@ class RandomizeMoveOperation(PipelineOperation):
             obj = bpy.data.objects[item]
             obj.location = position
 
+
+@OperationRegistry.register(PipeNames.MATERIAL.value)
+class RandomizeMaterialOperation(PipelineOperation):
+
+    def get_global_context(self):
+        return RandomizeMaterialOperation.MaterialContext(self.targets)
+
+    def get_frame_context(self):
+        return RandomizeMaterialOperation.MaterialContext(self.targets)
+
+    def compile(self, context, config: dict):
+        self.targets = config[wsk.OBJECT.value][wsk.OBJECT_NAMES.value]
+        self.material_list = config[wsk.MATERIAL.value][wsk.MATERIAL_LIST.value]
+        # Compile distribution for material selection (categorical over material list)
+        self.distribution = SamplerCompiler.make_distribution(
+            Distribution.CATEGORICAL_UNIFORM.name, 1, n=len(self.material_list) - 1)
+
+
+    def __init__(self):
+        self.distribution = None
+        self.targets = None
+        self.material_list = None
+
+    def execute(self, context):
+        # Sample from distribution to select a material, the distribution is ensured to be
+        # a categorical  created internally.
+        selected_material_idx = min(max(0, int(self.distribution.sample()[0])), len(self.material_list) - 1)
+
+        selected_material_name = self.material_list[selected_material_idx]
+        selected_material = bpy.data.materials.get(selected_material_name)
+
+        if not selected_material:
+            return
+
+        # Apply to all target objects
+        for obj_name in self.targets:
+            obj = bpy.data.objects[obj_name]
+            self.apply_material(obj, selected_material)
+
+    @staticmethod
+    def apply_material(obj, material) -> None:
+        """ Apply material to the object (assumes single material). The reason this
+        function is kept separate is to encourage maintainability if in the future
+        multi-material objects were to be supported in some way.
+
+        :param obj: The target blender object
+        :param material: the material
+        """
+        if not obj.data.materials:
+            obj.data.materials.append(material)
+        else:
+            obj.data.materials[0] = material
+
+    class MaterialContext(ContextManager):
+
+        def __init__(self, items):
+            self.items = items
+            self.material_states: List[tuple] = []
+
+        def __enter__(self):
+            self.material_states.clear()
+            for item in self.items:
+                obj = bpy.data.objects[item]
+                # Get the first material (or None if no materials), WE IGNORE THE
+                # multi-material configuration
+                current_material = obj.data.materials[0] if obj.data.materials else None
+                self.material_states.append((item, current_material))
+
+        def __exit__(self, exc_type, exc_val, exc_tb):
+            for item, material in self.material_states:
+                obj = bpy.data.objects[item]
+                # The object originally had either one material or zero, so either
+                # clear the material list or add the previous one.
+                if material is None:
+                    obj.data.materials.clear()
+                else:
+                    if not obj.data.materials:
+                        obj.data.materials.append(material)
+                    else:
+                        obj.data.materials[0] = material
 
 @OperationRegistry.register(PipeNames.ROTATION.value)
 class RandomizeRotationOperation(NumericRandomOperation):

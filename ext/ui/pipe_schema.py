@@ -197,7 +197,7 @@ class MaterialSchema(PipeSchema):
     def extract_config_from_ui(context, operation) -> dict:
         dic = {
             "target": ObjectTargeter.extract_data(context),
-            "materials": MaterialSelector.extract_data(context)
+            wsk.MATERIAL.value: MaterialSelector.extract_data(context)
         }
         return dic
 
@@ -242,7 +242,7 @@ class RoughnessSchema(MaterialSimplePropertySchema):
     pass
 
 @PipeSchemaRegistry.register(PipeNames.INTENSITY.value)
-class RandomizeNodeIntensitySchema(MaterialSimplePropertySchema):
+class RandomizeNodeIntensitySchema:
 
     @staticmethod
     def apply_config_to_ui(context, operation, config) -> None:

@@ -3,6 +3,7 @@ from ..constants import PipeNames, WidgetSerializationKeys, DISTRO_EDITOR_NAME
 
 from abc import ABCMeta, abstractmethod
 from enum import Enum
+from dataclasses import dataclass
 from typing import Union, Optional
 
 import bpy
@@ -19,6 +20,38 @@ class PipeValidator(metaclass=ABCMeta):
     @abstractmethod
     def validate(pipe: PipelineOperation, config: dict) -> bool:
         pass
+
+
+class ValidationResult:
+    """
+
+    """
+
+    def __init__(self):
+        self.is_valid: bool = True
+        self.messages: list[ValidationMessage] = []
+
+    def add_error(self, message: str) -> None:
+        self.messages.append(ValidationMessage('ERROR', message))
+
+    def add_warning(self, message: str) -> None:
+        self.messages.append(ValidationMessage('WARNING', message))
+
+    def has_errors(self) -> bool:
+        return next((msg for msg in self.messages if 'ERROR' in msg.message), None) is None
+
+    def make_summary(self) -> str:
+        return ""
+
+
+@dataclass
+class ValidationMessage:
+    """
+
+    """
+    type: str
+    message: str
+    context: Optional[str] = None
 
 
 class ValidatorRegistry:
@@ -101,7 +134,6 @@ class TextureValidator(PipeValidator):
     def validate(pipe: PipelineOperation, config: dict) -> bool:
         return False
 
-
 @ValidatorRegistry.register(PipeNames.INTENSITY.value)
 class IntensityValidator(PipeValidator):
 
@@ -112,21 +144,21 @@ class IntensityValidator(PipeValidator):
         dis_ok = NodeDistributionSelectorValidator.validate(partial_config=config[wsk.NODE.value])
         return val_ok and dis_ok
 
-@ValidatorRegistry.register(PipeNames.METALLIC.value)
-class MetallicValidator(PipeValidator):
-
+class MaterialPropertyValidator(PipeValidator):
     @staticmethod
     def validate(pipe: PipelineOperation, config: dict) -> bool:
-        return False
+        dis_ok = NodeDistributionSelectorValidator.validate(partial_config=config[wsk.NODE.value])
+        mat_ok = MaterialSelectorValidator.validate(partial_config=config[wsk.MATERIAL.value])
+        return dis_ok and mat_ok
 
+
+@ValidatorRegistry.register(PipeNames.METALLIC.value)
+class MetallicValidator(MaterialPropertyValidator):
+    pass
 
 @ValidatorRegistry.register(PipeNames.ROUGHNESS.value)
-class RoughnessValidator(PipeValidator):
-
-    @staticmethod
-    def validate(pipe: PipelineOperation, config: dict) -> bool:
-        return False
-
+class RoughnessValidator(MaterialPropertyValidator):
+    pass
 
 @ValidatorRegistry.register(PipeNames.BEZIER_LOCK.value)
 class CameraBezierLockValidator(PipeValidator):

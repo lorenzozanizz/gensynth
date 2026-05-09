@@ -716,6 +716,7 @@ class MaterialSelector(EditorWidget):
         # repopulate the material list editor.
         scene = context.scene
         names = config["materials"]
+        scene.material_list.clear()
         for name in names:
             mat = bpy.data.materials.get(name)
             if not mat:
@@ -727,7 +728,7 @@ class MaterialSelector(EditorWidget):
     def extract_data(context) -> dict:
         scene = context.scene
         return {
-            "materials": [
+            wsk.MATERIAL_LIST.value: [
                 mat.material.name for mat in scene.material_list
             ]
         }

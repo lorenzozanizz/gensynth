@@ -7,6 +7,7 @@ extraction of data can happen without interrogating the bpy data component every
 
 from .nodes import NodeDistributionSerializer
 from ..constants import WidgetSerializationKeys, DISTRO_EDITOR_NAME
+from ..utils.logger import UniqueLogger
 from ..utils.math_funcs import geometric
 
 from enum import Enum
@@ -137,8 +138,8 @@ class PresetSampler(CompiledSampler):
         :param dim:
         :return:
         """
-        n = params['n'] + 1 # Ensure that n is included in the sampling
-        return list(random.sample(range(0, n), dim))
+        n = params['n']
+        return [random.randint(0, n) for _ in range(dim)]
 
     @staticmethod
     def _sample_uniform(params: Dict[str, Any], dim: int):
@@ -198,7 +199,7 @@ class PresetSampler(CompiledSampler):
         :return:
         """
         d = Distribution
-        return {
+        dis = {
             d.NONE:                             lambda _1, _2: None,
             d.UNIFORM:                          PresetSampler._sample_uniform,
             d.BERNOULLI:                        PresetSampler._sample_bernoulli,
@@ -212,6 +213,8 @@ class PresetSampler(CompiledSampler):
             d.UNIFORM_SPHERE:                   PresetSampler._sample_uniform_sphere,
             d.MULTIVARIATE_ISOTROPIC_GAUSSIAN:  PresetSampler._sample_isotropic_gaussian
         }[type_e]
+        UniqueLogger.quick_log("I GOT THE SAMPLER: " + dis.__str__())
+        return dis
 
     def __init__(self, config: Dict[str, Any], dim):
         """
@@ -348,7 +351,7 @@ class SamplerCompiler:
         """
         return PresetSampler({
             'preset': op_type,
-            **kwargs,
+            "parameters": dict(**kwargs),
         }, dim)
 
     @staticmethod
