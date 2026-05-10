@@ -14,7 +14,7 @@ from bpy.props import (
 )
 
 from .formatting_config import LabelConfigDataProperty
-from .pipe_editor import ImagePath, ObjectPosition, MaterialListItem, ObjectName, TextureNodeProperty
+from .pipe_editor import ImagePath, ObjectPosition, MaterialListItem, ObjectName, TypedNodeProperty
 from ..distribution.computation import ONE_D_DISTRIBUTIONS, UPPER_D_DISTRIBUTIONS
 from ..core.io.strategies import SupportedFormats
 
@@ -137,13 +137,9 @@ operation_properties = {
         name="Targeted Objects",
         type=ObjectName
     ),
-    "targeted_texture_node": PointerProperty(
-        name="Targeted Objects",
-        type=TextureNodeProperty
-    ),
-    "targeted_value_node": PointerProperty(
-        name="Targeted Objects",
-        type=TextureNodeProperty
+    "targeted_node": PointerProperty(
+        name="Targeted Node",
+        type=TypedNodeProperty
     ),
     "use_folder_mode": BoolProperty(
         name="Use Folder",

@@ -398,14 +398,30 @@ class RandomizeMoveOperation(PipelineOperation):
 
 class SimpleMaterialPropertyOperation(PipelineOperation):
 
+    def __init__(self):
+        self.distribution = None
+        self.node = None
+        self.offset_mode = None
+
     def compile(self, context, config: dict):
-        pass
+        self.distribution = SamplerCompiler.compile(config[wsk.NODE_DISTRIBUTION.value], dim=1)
+
+        node_label = config[wsk.VALUE.value][wsk.VALUE_LABEL.value]
+        material = config[wsk.VALUE.value][wsk.VALUE_MATERIAL.value]
+        # Already extract the target node.
+        material = bpy.data.materials.get(material)
+        nodes = material.node_tree.nodes
+        self.node = next(node for node in nodes if node.label == node_label)
+
+        # This is a boolean value
+        self.offset_mode = config[wsk.OFFSET.value][wsk.OFFSET_MODE.value]
 
     def execute(self, context):
-        pass
+        value = self.distribution.sample()[0]
+        self.set_prop(self.node, value, offset=self.offset_mode)
 
     @abstractmethod
-    def assign_prop(self) -> None:
+    def set_prop(self, node: Any, value: Any, offset: bool) -> None:
         pass
 
     @abstractmethod
@@ -414,8 +430,9 @@ class SimpleMaterialPropertyOperation(PipelineOperation):
 
     class SimplePropertyContext(ContextManager):
 
-        def __init__(self, get_prop: Callable, set_prop: Callable):
+        def __init__(self, node, get_prop: Callable, set_prop: Callable):
             self.prop = None
+            self.node = node
             self.get = get_prop
             self.set = set_prop
 
@@ -423,31 +440,32 @@ class SimpleMaterialPropertyOperation(PipelineOperation):
             self.prop = self.get()
 
         def __exit__(self, exc_type, exc_val, exc_tb):
-            self.set(self.prop)
+            # No offset, just reset the value to the initial value.
+            self.set(self.node, self.prop, offset=False)
 
     def get_global_context(self):
-        return SimpleMaterialPropertyOperation.SimplePropertyContext()
+        return SimpleMaterialPropertyOperation.SimplePropertyContext(self.node, self.get_prop, self.set_prop)
 
     def get_frame_context(self):
-        simpleMaterialPropertyContext = SimpleMaterialPropertyOperation.SimplePropertyContext()
+        return SimpleMaterialPropertyOperation.SimplePropertyContext(self.node, self.get_prop, self.set_prop)
 
 
 class RoughnessMaterialPropertyOperation(SimpleMaterialPropertyOperation):
 
-    def assign_prop(self):
+    def set_prop(self, node: Any, value: Any, offset: bool) -> None:
         pass
 
     def get_prop(self) -> Any:
         pass
+
 
 class MetallicMaterialPropertyOperation(SimpleMaterialPropertyOperation):
 
-    def assign_prop(self):
+    def set_prop(self, node: Any, value: Any, offset: bool) -> None:
         pass
 
     def get_prop(self) -> Any:
         pass
-
 
 
 @OperationRegistry.register(PipeNames.MATERIAL.value)

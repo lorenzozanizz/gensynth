@@ -3,7 +3,7 @@ from .pipeline_list_viewer import (RegistrationPanel, AddCameraCategoryPipeMenu,
                                    AddObjectCategoryPipeMenu, AddMaterialCategoryPipeMenu, AddConstraintCategoryPipeMenu,
                                    PipelineOperationsList, AddExperimentalCategoryPipeMenu)
 from .properties import ext_ui_properties, distribution_settings, operation_properties
-from .pipe_editor import (DistributionTreeList, PathsUIList, ImagePath, PositionsUIList, ObjectName, TextureNodeProperty,
+from .pipe_editor import (DistributionTreeList, PathsUIList, ImagePath, PositionsUIList, ObjectName, TypedNodeProperty,
                           ObjectPosition, MaterialListItem, MaterialUIList)
 from .labeling_panel import LabelingPanel, LabelClassesUIList, ObjectLabelsUIList, LabelRulesUIList, NamedEntitiesUIList
 from .formatting_config import LabelConfigDataProperty
@@ -28,7 +28,7 @@ classes = (
     RandomizerPanel, SettingsPanel, InfoPanel, RegistrationPanel, LabelingPanel, AddCameraCategoryPipeMenu,
     AddLightingCategoryPipeMenu, AddObjectCategoryPipeMenu, PipelineOperationsList, AddExperimentalCategoryPipeMenu,
     AddMaterialCategoryPipeMenu, AddConstraintCategoryPipeMenu, DistributionTreeList, PathsUIList,
-    ImagePath, PositionsUIList, ObjectPosition, MaterialListItem, MaterialUIList, ObjectName, TextureNodeProperty,
+    ImagePath, PositionsUIList, ObjectPosition, MaterialListItem, MaterialUIList, ObjectName, TypedNodeProperty,
     LabelClassesUIList, ObjectLabelsUIList, LabelRulesUIList, NamedEntitiesUIList, LabelConfigDataProperty
 )
 

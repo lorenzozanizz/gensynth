@@ -49,6 +49,8 @@ class Labels(Enum):
     CAPTURE_TEXTURE_NODE    = "randomizer.capture_texture"
     # ( Capture the currently selected objects, either a single one or a group )
     CAPTURE_OBJECTS         = "randomizer.capture_objects"
+    #
+    CAPTURE_TYPED_NODE      = "randomizer.capture_typed_node"
 
     TYPED_SINGLE_OBJ_CAPT   = "randomizer.typed_single_obj_capture"
     # ( Select the position of the cursor )

@@ -190,7 +190,9 @@ class TypedSingleObjectTargeter(Operator):
 
         return { 'FINISHED' }
 
-def get_selected_node_and_material(reporter, context, node_name: Optional[str]) -> tuple:
+def get_selected_node_and_material(
+        reporter, context, node_name: Optional[str] = None, node_type: Optional[str] = None
+    ) -> tuple:
     """
 
     :param reporter:
@@ -215,7 +217,10 @@ def get_selected_node_and_material(reporter, context, node_name: Optional[str]) 
                     if not node.select:
                         continue
                     # If the node_name value is set, check if the node matches
-                    if node_name is not None and node.bl_idname != node_name:
+                    if node_name is not None and node_name in node.bl_idname:
+                        return None, None
+                    # If the node_name value is set, check if the node matches
+                    if node_type is not None and node_type in node.type:
                         return None, None
                     # At this point the node is selected and is of the correct node type.
                     if not node.label or node.bl_label.strip() == "":
@@ -224,6 +229,31 @@ def get_selected_node_and_material(reporter, context, node_name: Optional[str]) 
                     else:
                         return node, mat_name
     return None, None
+
+
+class TypedNodeCaptureOperator(Operator):
+    """Capture currently selected objects"""
+
+    bl_idname = Labels.CAPTURE_TYPED_NODE.value
+    bl_label = "Capture a Typed node"
+
+    node_type: StringProperty(default="")           # type: ignore
+
+    def execute(self, context):
+        scene = context.scene
+        selected, mat_name = get_selected_node_and_material(self, context, self.node_type)
+
+        if not selected:
+            return { 'CANCELLED' }
+
+        # Store name
+        lab = selected.label
+        mat_prop = scene.targeted_node
+        mat_prop.node_label = lab
+        mat_prop.mat_name = mat_name
+
+        self.report({ 'INFO' }, f"Captured: {mat_name} > {lab}")
+        return { 'FINISHED' }
 
 
 class CaptureTextureOperator(Operator):

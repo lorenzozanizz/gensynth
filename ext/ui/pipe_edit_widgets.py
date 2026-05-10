@@ -14,7 +14,7 @@ from bpy.types import UIList, PropertyGroup, Material
 
 wsk = WidgetSerializationKeys
 
-class TextureNodeProperty(PropertyGroup):
+class TypedNodeProperty(PropertyGroup):
     """ A property to contain the name of a material and a texture. """
     mat_name: StringProperty(name="Material")                   # type: ignore
     node_label: StringProperty(name="Label")                    # type: ignore
@@ -279,21 +279,21 @@ class ImageTextureTargeter(EditorWidget):
     @staticmethod
     def reset(context) -> None:
         scene = context.scene
-        scene.targeted_texture_node.mat_name = ""
-        scene.targeted_texture_node.node_label = ""
+        scene.targeted_node.mat_name = ""
+        scene.targeted_node.node_label = ""
 
     @staticmethod
     def setup_from_config(config: dict, context) -> None:
         scene = context.scene
-        scene.targeted_texture_node.mat_name = config["material"]
-        scene.targeted_texture_node.node_label = config["label"]
+        scene.targeted_node.mat_name = config["material"]
+        scene.targeted_node.node_label = config["label"]
 
     @staticmethod
     def extract_data(context) -> dict:
         scene = context.scene
         return {
-            "material": scene.targeted_texture_node.mat_name,
-            "label": scene.targeted_texture_node.node_label,
+            "material": scene.targeted_node.mat_name,
+            "label": scene.targeted_node.node_label,
         }
 
     @staticmethod
@@ -308,10 +308,10 @@ class ImageTextureTargeter(EditorWidget):
         box = layout.box().row()
         box.label(text="Texture:")
 
-        mat_prop = scene.targeted_texture_node
+        mat_prop = scene.targeted_node
         text_label = f"{mat_prop.mat_name} > {mat_prop.node_label}" if (mat_prop.mat_name and mat_prop.node_label) else "None"
         box.label(text=text_label, icon='OBJECT_DATA')
-        box.operator(Labels.CAPTURE_TEXTURE_NODE.value, text="Capture", icon='EYEDROPPER')
+        box.operator(Labels.CAPTURE_TYPED_NODE.value, text="Capture", icon='EYEDROPPER').node_type = 'ShaderNodeTexImage'
 
 #
 class PathListSelector(EditorWidget):
@@ -780,8 +780,8 @@ class ValueTargeter(EditorWidget):
     @staticmethod
     def reset(context) -> None:
         scene = context.scene
-        scene.targeted_value_node.mat_name = ""
-        scene.targeted_value_node.node_label = ""
+        scene.targeted_node.mat_name = ""
+        scene.targeted_node.node_label = ""
 
     @staticmethod
     def draw(layout, context):
@@ -789,23 +789,23 @@ class ValueTargeter(EditorWidget):
         box = layout.box().row()
         box.label(text="Value Node:")
 
-        mat_prop = scene.targeted_value_node
+        mat_prop = scene.targeted_node
         text_label = f"{mat_prop.mat_name} > {mat_prop.node_label}" if (mat_prop.mat_name and mat_prop.node_label) else "None"
         box.label(text=text_label, icon='OBJECT_DATA')
-        box.operator(Labels.CAPTURE_VALUE_NODE.value, text="Capture Selected", icon='EYEDROPPER')
+        box.operator(Labels.CAPTURE_TYPED_NODE.value, text="Capture Selected", icon='EYEDROPPER').node_type = 'ShaderNodeValue'
 
     @staticmethod
     def setup_from_config(config: dict, context) -> None:
         scene = context.scene
-        scene.targeted_value_node.mat_name = config["material"]
-        scene.targeted_value_node.node_label = config["label"]
+        scene.targeted_node.mat_name = config["material"]
+        scene.targeted_node.node_label = config["label"]
 
     @staticmethod
     def extract_data(context) -> dict:
         scene = context.scene
         return {
-            wsk.VALUE_MATERIAL.value: scene.targeted_value_node.mat_name,
-            wsk.VALUE_LABEL.value: scene.targeted_value_node.node_label,
+            wsk.VALUE_MATERIAL.value: scene.targeted_node.mat_name,
+            wsk.VALUE_LABEL.value: scene.targeted_node.node_label,
         }
 
 

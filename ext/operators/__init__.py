@@ -6,7 +6,7 @@ from .pipeline_ops import (EditPipeOperator, PipeAddOperator, MenuOperator, Pipe
                            PositionRemoveOperator, PositionAddOperator, AddMaterialToListOperator, RemoveMaterialFromListOperator,
                            CaptureValueNode, CaptureAndModifyNodeProperties, SavePipeOperator, ScanPipelineOperator,
                            IntoFolderOperator, ViewTargetSelectedOperator, CaptureCursorPositionOperator,
-                           TypedSingleObjectTargeter)
+                           TypedSingleObjectTargeter, TypedNodeCaptureOperator)
 from .distribution_ops import (AddDistributionOperator, RemoveDistributionOperator, AddImagePathOperator,
                                RemoveImagePathOperator)
 from .core_ops import GenerateOperator, PreviewOperator
@@ -27,7 +27,7 @@ operators = (
     EditPipeOperator, MenuOperator, PipeAddOperator, PipeRemoveOperator, CaptureObjectsOperator, CaptureTextureOperator,
     PositionRemoveOperator, PositionAddOperator, CaptureObjectPositionOperator, AddMaterialToListOperator, RemoveMaterialFromListOperator,
     CaptureAndModifyNodeProperties, CaptureValueNode, SavePipeOperator,  ScanPipelineOperator, IntoFolderOperator,
-    ViewTargetSelectedOperator, CaptureCursorPositionOperator,TypedSingleObjectTargeter,
+    ViewTargetSelectedOperator, CaptureCursorPositionOperator,TypedSingleObjectTargeter, TypedNodeCaptureOperator,
 
     #
     AddDistributionOperator, RemoveDistributionOperator, AddImagePathOperator, RemoveImagePathOperator,
