@@ -1,0 +1,23 @@
+site_name: Gensynth Documentation & Tutorials
+theme:
+  name: material
+nav:
+  - Home: index.md
+  - Architecture:
+    - Overview: architecture/architecture_overview.md
+    - Distributions: architecture/distributions.md
+    - Reference: architecture/reference_sheet.md
+    - Label Generation: architecture/label_gen.md
+    - Serialization: architecture/serialization.md
+    # ... more files coming
+  - Tutorials:
+    - Setup: tutorials/00-setup.md
+    - Classes & Entities: tutorials/01_classes_entities.md
+    - Create Pipeline: tutorials/02_create_pipeline.md
+    - Labeling: tutorials/03_labeling.md
+    - Distributions: tutorials/04_distributions.md
+    - New Labeling Formats: tutorials/05_new_label_format.md
+    - Shader Randomization: tutorials/06_shader_randomize.md
+    # ... more files coming
+  - Examples:
+    - Product Classification: examples/00_prod_classification.md

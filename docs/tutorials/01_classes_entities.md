@@ -63,13 +63,13 @@ This will be useful when we set up material-based classification rules later.
 
 ### Step 2.1: Open the Labeling Panel
 
-![Classes](resources/1_classes.png)
+![Classes](../examples/resources/1_classes.png)
 1. In Blender, locate the **Labeling** panel (usually in the Properties sidebar on the right)
 2. Find the **Classes** section
 3. You should see an empty list of classes
 
 ### Step 2.2: Create Your First Class
-![First class](resources/1_one_clas.png)
+![First class](../examples/resources/1_one_clas.png)
 1. Click the **+** button to add a new class
 2. A new class entry appears with default values:
    - **Name:** (editable text field)
@@ -116,7 +116,7 @@ An **entity** is a logical grouping of multiple Blender objects that represent a
 
 ### Step 3.1: Create an Entity (Optional)
 
-![Entity](resources/1_entities.png)
+![Entity](../examples/resources/1_entities.png)
 In this tutorial, we'll create a simple entity grouping two of our cubes:
 Firstly, we must enable the entity creation by checking the "Define multi-object entities" checkbox. Then: 
 1. Open the **Entities** section in the Labeling panel (below Classes)
@@ -130,7 +130,7 @@ Firstly, we must enable the entity creation by checking the "Define multi-object
 
 **Result:** You've created an entity containing two cubes. These objects can now be classified together as a single entity, or individually as separate objects.
 
-![Result of entity](resources/1_mega_cube.png)
+![Result of entity](../examples/resources/1_mega_cube.png)
 ### Step 3.3: Understanding Object + Entity Classification
 
 An important feature: **objects can belong to an entity AND have individual classifications**.
@@ -150,7 +150,7 @@ There are two approaches to assign classes: **direct assignment** and **rule-bas
 
 ### Approach A: Direct Assignment
 
-![Assignment](resources/1_assignment.png)
+![Assignment](../examples/resources/1_assignment.png)
 #### Step 4.1: Open the Class Assignment Panel
 
 1. In the Labeling panel, locate the **Class Assignment** section
@@ -175,7 +175,7 @@ You are free to assign the remaining object any way you wish.
 
 ### Approach B: Rule-Based Assignment
 
-![Rules](resources/1_rules.png)
+![Rules](../examples/resources/1_rules.png)
 Rules allow the system to automatically classify objects based on properties without manual assignment. You can use multiple rules simultaneously.
 
 #### Step 4.4: Open the Rules Section
@@ -243,7 +243,7 @@ If an object matches multiple rules, the extension uses this priority:
 2. Look for the **Preview** button, typically represented by an **eye icon** (👁)
 
 ### Step 5.2: Activate the Preview
-![Preview](resources/1_preview.png)
+![Preview](../examples/resources/1_preview.png)
 1. Click the **eye icon** button
 2. The viewport will update to show:
    - **Bounding boxes** around labeled objects (if bbox is your labeling type)
