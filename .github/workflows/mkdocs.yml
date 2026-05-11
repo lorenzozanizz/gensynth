@@ -1,5 +1,8 @@
 name: Deploy Docs & Tutorials
 
+permissions:
+  contents: write
+
 on:
   push:
     branches:
@@ -15,7 +18,6 @@ jobs:
           python-version: 3.9
       - run: pip install mkdocs mkdocs-material
       - run: mkdocs build
-      - uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./site
+      - uses: mhausenblas/mkdocs-deploy-gh-pages@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,5 +1,10 @@
 # Gensynth
 
+[![Documentation](https://img.shields.io/badge/docs-mkdocs-blue)](https://lorenzozanizz.github.io/gensynth)
+[![Architecture](https://img.shields.io/badge/architecture-docs-informational)](./docs/architecture)
+[![Tutorials](https://img.shields.io/badge/tutorials-20+-success)](./docs/tutorials)
+[![Email](https://img.shields.io/badge/email-contact-red)](mailto:yourmail@example.com)
+
 A Blender extension for generating synthetic datasets through procedural randomization and batch rendering. This addon enables users to create diverse image datasets with controlled variations in object placement, material properties, lighting conditions, and scene parameters.
 Additionally, the extensions supports a preview functionality which allows to inspect the output of the pipeline and the computed labels directly inside Blender.
 
@@ -146,16 +151,7 @@ Pipelines are stored as JSON for reproducibility and sharing across .blend files
 
 ## Contributing
 
-This is a user-focused addon. Bug reports and feature requests can be submitted through the project repository.
-
-## Documentation
-
-Some documentation and tutorials are (will be) available at:
-[https://github.com/lorenzozanizz/synth-blender-dataset/docs
-](https://github.com/lorenzozanizz/synth-blender-dataset/tree/main/docs)
-
-[https://github.com/lorenzozanizz/synth-blender-dataset/examples
-](https://github.com/lorenzozanizz/synth-blender-dataset/tree/main/examples)
+This is a user-focused addon. Bug reports and feature requests can be submitted through the project repository. 
 
 ## Support
 
