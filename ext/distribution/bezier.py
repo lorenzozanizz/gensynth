@@ -1,16 +1,37 @@
-from .computation import CompiledSampler
+"""
+Utilities for representing, evaluating, and sampling Bezier curves.
 
-from typing import List, Dict
+This module provides lightweight data structures and helper functions for
+working with cubic Bezier splines embedded in 3D space. It includes utilities
+for:
+
+- Representing Bezier segments and spline collections
+- Importing Bezier curve data from Blender curve objects
+- Evaluating cubic Bezier segments
+- Approximating curve and spline lengths
+- Sampling points from Bezier curves using weighted distributions
+
+Sampling weights are derived from approximate segment lengths so that longer
+segments are proportionally more likely to be selected.
+"""
+
 from dataclasses import dataclass
-from mathutils import Vector
-from math import pi, sqrt, cos, sin
 from random import random, choices
+from typing import List
 
+from mathutils import Vector
 
 
 @dataclass
 class Bezier2PSegment:
-    """ """
+    """ Representation of a cubic Bezier segment.
+
+    :param p0: Starting control point.
+    :param left_handle: Incoming handle associated with the second endpoint.
+    :param right_handle: Outgoing handle associated with the first endpoint.
+    :param p1: Ending control point.
+    """
+
     p0: Vector
     left_handle: Vector
     right_handle: Vector
@@ -19,21 +40,35 @@ class Bezier2PSegment:
 
 @dataclass
 class Spline:
-    """ """
+    """ Collection of connected Bezier segments.
+
+    :param segments: Ordered list of cubic Bezier segments composing the spline.
+    """
+
     segments: list[Bezier2PSegment]
 
 
 @dataclass
 class BezierCurve:
-    """ """
+    """
+    Container for one or more Bezier splines.
+
+    :param splines: Collection of spline objects composing the curve.
+    """
     splines: list[Spline]
 
     @staticmethod
     def from_blender_curve(bpy_curve) -> 'BezierCurve':
-        """
+        """ Construct a BezierCurve from a Blender curve object.
 
-        :param bpy_curve: A Bezier Curve blender object
-        :return:
+        The generated curve explicitly incorporates the Blender object's world
+        transformation matrix so that sampled geometry reflects global scale,
+        translation, and rotation.
+
+        :param bpy_curve: Blender Bezier curve object.
+
+        :return: A convertedBezierCurve instance containing all Bezier
+            splines found in the Blender object.
         """
         spline_list = list()
         curve = BezierCurve(spline_list)
@@ -61,15 +96,17 @@ class BezierCurve:
 
 
 def evaluate_bezier_segment(p0, h0_right, h1_left, p1, t) -> Vector:
-    """
+    """ Evaluate a cubic Bezier segment at parameter t.
+     The evaluation follows the standard cubic Bezier formulation.
 
-    :param p0:
-    :param h0_right:
-    :param h1_left:
-    :param p1:
-    :param t:
-    :return:
-    """
+     :param p0: Starting control point.
+     :param h0_right: Outgoing handle associated with p0.
+     :param h1_left: Incoming handle associated with p1.
+     :param p1: Ending control point.
+     :param t: Parametric position along the curve in the interval.
+
+     :return: Evaluated point on the Bezier segment.
+     """
     # From the definition of a (cubic) Bezièr curve.
     # https://en.wikipedia.org/wiki/B%C3%A9zier_curve
     mt = 1 - t
@@ -77,11 +114,10 @@ def evaluate_bezier_segment(p0, h0_right, h1_left, p1, t) -> Vector:
 
 
 def evaluate_2p_bezier_seg(p: Bezier2PSegment, t) -> Vector:
-    """
+    """ Evaluate a :class:`Bezier2PSegment` at parameter ``t``.
 
-    :param p:
-    :param t:
-    :return:
+    :param p: Bezier segment to evaluate.
+    :param t: Parametric position along the segment in the interval ``[0, 1]``.
     """
     # From the definition of a (cubic) Bezièr curve.
     # https://en.wikipedia.org/wiki/B%C3%A9zier_curve
@@ -90,7 +126,19 @@ def evaluate_2p_bezier_seg(p: Bezier2PSegment, t) -> Vector:
 
 
 def segment_length(p0, h0_right, h1_left, p1, samples=10):
-    """ Approximate segment length via sampling """
+    """ Approximate the length of a cubic Bezier segment.
+
+    Length is estimated through uniform parametric sampling and piecewise
+    linear distance accumulation.
+
+    :param p0: Starting control point.
+    :param h0_right: Outgoing handle associated with ``p0``.
+    :param h1_left: incoming handle associated with ``p1``.
+    :param p1: Ending control point.
+    :param samples: Number of discrete samples used for approximation.
+
+    :return: Approximate arc length of the segment.
+    """
     total = 0
     prev_point = p0
     for i in range(1, samples + 1):
@@ -118,12 +166,21 @@ def normalize_weights(weights: List[float]) -> None:
 
 
 class BezierDistribution:
+    """
+    Weighted spatial distribution over a Bezier curve.
+
+    This distribution samples random points from a Bezier curve by:
+
+    1. Selecting a spline according to spline length
+    2. Selecting a segment according to segment length
+    3. Evaluating a random parameter value on the segment
+
+    Segment and spline probabilities are proportional to their approximate
+    geometric lengths.
+    """
 
     def __init__(self, curve: BezierCurve) -> None:
-        """
-
-        :param curve:
-        """
+        """ Initialize the Bezier distribution.  """
         self.curve = curve
 
         self.spline_weight = []
@@ -132,9 +189,10 @@ class BezierDistribution:
         self._compile()
 
     def _compile(self) -> None:
-        """
+        """ Precompute spline and segment sampling weights.
 
-        :return:
+        Segment lengths are approximated numerically and normalized to form
+        probability distributions suitable for weighted random sampling.
         """
         self.segment_mapped_weights = {
             i: [bezier_segment_length(seg) for seg in spline.segments]
@@ -151,17 +209,19 @@ class BezierDistribution:
 
     @property
     def dimension(self) -> int:
-        """ Get the dimension of the Bezier distribution, assumed to be 3 (embeddeed in 3d)"""
+        """ Get dimension of the sampled space. """
         # All bezier are assumed to be embedded in 3d space, independently of their
         # collinearity.
         return 3
 
     def sample(self) -> List[float]:
-        """
+        """ Sample a random point from the Bezier distribution.
 
-        :return:
-        """
+        Sampling proceeds hierarchically using spline and segment weights
+        derived from approximate geometric lengths.
 
+        :return: A sampled 3D point represented as [x, y, z].
+        """
         if not self.spline_weight or not self.segment_mapped_weights:
             return [0.0, 0.0, 0.0]
 

@@ -222,10 +222,11 @@ def get_selected_node_and_material(
             if not node.select:
                 continue
             # If the node_name value is set, check if the node matches
-            if node_name is not None and node_name in node.bl_idname:
+            if node_name is not None and node_name not in node.bl_idname:
                 return None, None
             # If the node_name value is set, check if the node matches
-            if node_type is not None and node_type in node.type:
+            UniqueLogger.quick_log(f"NODE TYPE: {node_type} e {node.type.lower()}")
+            if node_type is not None and node_type.lower() not in node.type.lower():
                 return None, None
             if has_attributes and node.attributes:
                 search_attributes = set(att.lowerr() for att in has_attributes)
@@ -257,7 +258,8 @@ class TypedNodeCaptureOperator(Operator):
 
     def execute(self, context):
         scene = context.scene
-        selected, mat_name = get_selected_node_and_material(self, context, self.node_id)
+        selected, mat_name = get_selected_node_and_material(
+            self, context, node_name=self.node_id, node_type=self.node_type)
 
         if not selected:
             return { 'CANCELLED' }

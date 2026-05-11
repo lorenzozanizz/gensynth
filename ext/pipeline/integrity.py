@@ -156,7 +156,7 @@ class SimpleMaterialPropertyValidator(PipeValidator):
 
     @staticmethod
     def validate(pipe: PipelineOperation, config: dict) -> bool:
-        sha_ok = LabeledNodeValidator.validate(config[wsk.SHADER_NODE.value])
+        sha_ok = TypedNodeValidator.validate(config[wsk.SHADER_NODE.value])
         dis_ok = NodeDistributionSelectorValidator.validate(config[wsk.SIMPLE.value])
         return dis_ok and sha_ok
 
@@ -389,6 +389,35 @@ class PropertyTargeterValidator(WidgetValidator):
     @staticmethod
     def validate(partial_config: dict) -> bool:
         pass
+
+
+class TypedNodeValidator(WidgetValidator):
+
+    @staticmethod
+    def validate(partial_config: dict) -> bool:
+
+        material = partial_config[wsk.SHADER_MATERIAL.value]
+        if not material:
+            return False
+        try:
+            tree = bpy.data.materials.get(material)
+            label = partial_config[wsk.SHADER_LABEL.value]
+        except KeyError:
+            return False
+        if not tree or not tree.use_nodes:
+            return False
+        node_tree = tree.node_tree
+        found_node = None
+
+        for node in node_tree.nodes:
+            if node.label == label:
+                found_node = node
+                break
+
+        if not found_node:
+            return False
+        return True
+
 
 
 class LabeledNodeValidator(WidgetValidator):

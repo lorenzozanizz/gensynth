@@ -268,7 +268,7 @@ class SimpleMaterialPropertyEditor(PipeDrawer):
     @staticmethod
     def draw_editor(layout, context) -> None:
         # Simple properties only have the distribution to edit.
-        typed_selector = TypedNodeTargeter(text="Shader Node:")
+        typed_selector = TypedNodeTargeter(text="Shader Node:", node_type='bsdf')
         typed_selector.draw(layout, context)
         NodeDistributionSelector.draw(layout, context, dim=1)
 

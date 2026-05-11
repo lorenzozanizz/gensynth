@@ -258,8 +258,9 @@ class SimpleMaterialPropertySchema(PipeSchema):
     @staticmethod
     def extract_config_from_ui(context, operation) -> dict:
         dic = {
+            wsk.OFFSET.value: OffsetMode.extract_data(context),
             wsk.SHADER_NODE.value: TypedNodeTargeter.extract_data(context),
-            wsk.NODE.value: NodeDistributionSelector.extract_data(context),
+            wsk.NODE.value: NodeDistributionSelector.extract_data(context, dim=1),
         }
         return dic
 
@@ -267,8 +268,10 @@ class SimpleMaterialPropertySchema(PipeSchema):
     def apply_config_to_ui(context, operation, config) -> None:
         if not config:
             NodeDistributionSelector.reset(context)
+            OffsetMode.reset(context)
             TypedNodeTargeter.reset(context)
         else:
+            OffsetMode.setup_from_config(config[wsk.OFFSET.value], context)
             TypedNodeTargeter.setup_from_config(config[wsk.SHADER_NODE.value], context)
             NodeDistributionSelector.setup_from_config(config["distribution"], context, dim=1)
 

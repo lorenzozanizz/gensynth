@@ -333,6 +333,7 @@ class TypedNodeTargeter(EditorWidget):
         text_label = f"{mat_prop.mat_name} > {mat_prop.node_label}" if (
                     mat_prop.mat_name and mat_prop.node_label) else "None"
         box.label(text=text_label, icon='OBJECT_DATA')
+        UniqueLogger.quick_log(f"{self.node_id} > {self.node_type}")
         if self.node_id:
             box.operator(Labels.CAPTURE_TYPED_NODE.value, text="Capture", icon='EYEDROPPER').node_id = self.node_id
         elif self.node_type:
@@ -347,15 +348,15 @@ class TypedNodeTargeter(EditorWidget):
     @staticmethod
     def setup_from_config(config: dict, context) -> None:
         scene = context.scene
-        scene.targeted_node.mat_name = config["material"]
-        scene.targeted_node.node_label = config["label"]
+        scene.targeted_node.mat_name = config[wsk.SHADER_MATERIAL.value]
+        scene.targeted_node.node_label = config[wsk.SHADER_LABEL.value]
 
     @staticmethod
     def extract_data(context) -> dict:
         scene = context.scene
         return {
-            "material": scene.targeted_node.mat_name,
-            "label": scene.targeted_node.node_label,
+            wsk.SHADER_MATERIAL.value: scene.targeted_node.mat_name,
+            wsk.SHADER_LABEL.value: scene.targeted_node.node_label,
         }
 
 
