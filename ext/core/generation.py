@@ -1,5 +1,7 @@
 import random
 import bpy
+from pathlib import Path
+
 
 from ..pipeline.bpy_properties import PipelineData
 from ..pipeline.context import NestedPipelineContext
@@ -94,17 +96,23 @@ class Executor:
                                 image_ext=scene.render.image_settings.file_format,
                                 camera=default_camera,
                             )
-                            # Run generation pipeline (handles extraction + formatting)
-                            self.labeling_orchestrator.process_shot(
-                                render_cfg,
-                                depsgraph=self.ctx.evaluated_depsgraph_get()
-                            )
 
+                            # First generate the target image, then we process the shot to generate
+                            # labels. This is required for some labeling formats, which for example
+                            # require to sample the pixel colors directly from the rendered scene!
                             write_path = self.writer.get_image_write_path()
 
                             # Renders
                             scene.render.filepath = write_path
                             bpy.ops.render.render(write_still=True)
+
+                            # Run generation pipeline (handles extraction + formatting)
+                            self.labeling_orchestrator.process_shot(
+                                render_cfg,
+                                rendered_data_path=Path(write_path).name,
+                                depsgraph=self.ctx.evaluated_depsgraph_get()
+                            )
+
 
                         # ^ Frame context exits here—restores frame-level state, required for
                         # pipes that require per-frame restoring (e.g. those that act as offset

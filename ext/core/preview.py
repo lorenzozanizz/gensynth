@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from .executable_pipeline import ExecutablePipeline
 from .generation import NoViewportUpdate
 from .configurations import PreviewRenderConfig, LabelExtractionConfig, RenderConfig
@@ -137,6 +139,12 @@ class PreviewGenerator:
                 # Execute pipeline
                 self.pipeline.execute()
 
+
+                # We render in a temp path
+                scene.render.filepath = self.path
+                with TimingContext(self.timings, 'render'):
+                    bpy.ops.render.render(write_still=True)
+
                 default_camera = self.ctx.scene.camera
                 if not default_camera:
                     self.reporter.report({'WARNING'}, "No default camera was set, no labels preview could be generated")
@@ -152,13 +160,10 @@ class PreviewGenerator:
                     with TimingContext(self.timings, 'labeling'):
                         self.labeling_orchestrator.process_shot(
                             render_cfg=render_cfg,
+                            rendered_data_path=Path(self.path).name,
                             depsgraph=self.ctx.evaluated_depsgraph_get()
                         )
 
-                # We render in a temp path
-                scene.render.filepath = self.path
-                with TimingContext(self.timings, 'render'):
-                    bpy.ops.render.render(write_still=True)
 
         # ^ Global contexts exit here—restores global state
 

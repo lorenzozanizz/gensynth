@@ -109,7 +109,6 @@ def get_visible_objects_from_camera(scene, depsgraph,
                 init_tup: tuple = ()
                 # Compute normal if required
                 if compute_normal:
-
                     init_tup += normal,
                 # Compute distance if required
                 if compute_dist:

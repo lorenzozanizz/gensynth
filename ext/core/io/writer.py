@@ -94,6 +94,10 @@ class OutputWriter:
         """
 
         for (file_type, ext, file_content) in serialized_content:
+
+            # Note: to write image types of labels (e.g. for normal maps or depth maps,
+            # we use blender's image writing API to avoid injecting a dependency.
+
             # Ensure that the extension is properly formatted.
             if not ext.startswith("."):
                 ext = f".{ext}"

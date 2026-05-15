@@ -14,7 +14,9 @@ from ..labeling.class_engine import ClassificationEngine
 from ..labeling.generator import Extractor, BoundingBoxExtractor
 from ..labeling.ray_casting import get_visible_objects_from_camera
 
-from typing import Dict, Collection, Any, Optional
+from typing import Dict, Collection, Any, Optional, Union
+
+from pathlib import Path
 
 
 class LabelingOrchestrator:
@@ -45,7 +47,7 @@ class LabelingOrchestrator:
 
         self.label_data = None
 
-    def process_shot(self, render_cfg: RenderConfig, depsgraph) -> None:
+    def process_shot(self, render_cfg: RenderConfig, rendered_data_path: Union[Path | str], depsgraph) -> None:
         """ The orchestrator processes the shot obtaining the render config from the
         RendereConfig object which contains info about the camera, the width and the height of the current
         scene image. The shot is processed by extracting the labels from the image with ray casing
@@ -57,6 +59,7 @@ class LabelingOrchestrator:
 
         :param render_cfg: The configuration of the rendered shot, including camera, width, height,
             etc...
+        :param rendered_data_path: The path of the rendered shot, to be used when extracting pixel color data
         :param depsgraph: The dependency graph used to evaluate the scene when computing the ray casting points
         :return:
         """

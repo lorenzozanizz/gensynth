@@ -19,11 +19,13 @@ class Extractor(metaclass=ABCMeta):
     to objects and entities. Different extractors may extract different geometries in general.  """
 
     @abstractmethod
-    def extract(self,             visible_objects,
+    def extract(self,
+            visible_objects,
             classifier,
             entity_data,
             camera,
-                estimate_visibility: bool = True, **kwargs) -> LabelData:
+            estimate_visibility: bool = True, **kwargs
+        ) -> LabelData:
         """ Extract the geometry of the identified objects and label from the scene, the data is
         then packed into LabelData objects which are iterables over a list of labels including geometry data,
         class data.
@@ -68,6 +70,7 @@ class Extractor(metaclass=ABCMeta):
         """ Get the mappings from object to bounding boxes """
         pass
 
-    def ray_casting_needs(self):
+    @staticmethod
+    def ray_casting_needs() -> dict[str, Any]:
         return {}
 
