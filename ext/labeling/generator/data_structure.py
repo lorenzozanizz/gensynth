@@ -3,7 +3,7 @@
 Defines Label objects for individual entity annotations and LabelData containers
 for managing collections of labels within a frame.
 """
-
+from collections.abc import Iterable
 from dataclasses import dataclass
 from typing import Optional, Literal, Union, Dict, Any
 
@@ -48,6 +48,9 @@ class Label:
     bbox: tuple[float, float, float, float] = None
     polygon: list[tuple[float, float]] = None
     segmentation: list[int] = None # run length encoding
+    point_cloud: Iterable = None
+    # depth maps, normal maps, etc... (numpy arrays usually)
+    per_pixel_map = None
 
     # e.g. for CVAT formats
     attributes: dict[str, Any] =  None

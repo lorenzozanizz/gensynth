@@ -18,7 +18,7 @@ MAIN_PANEL_NAME = "Generator"
 PANEL_CATEGORY  = "Rendersynth"
 
 REPO_URL = "https://github.com/lorenzozanizz/rendersynth"
-DOCU_URL = "https://github.com/lorenzozanizz/rendersynth/docs"
+DOCU_URL = "https://lorenzozanizz.github.io/rendersynth/"
 
 VERSION        = "1.0.0"
 TARGET_VERSION = "4.5.0"
@@ -58,8 +58,8 @@ class PipeNames(Enum):
 
     # Lighting
     TEMPERATURE = "Temperature"     # (x)
-    POWER       = "Power"           # (x)
-    COLOR       = "Color"           # (x)
+    POWER       = "Power"
+    COLOR       = "Color"
 
     # Camera
     BEZIER_LOCK = "Bezier Lock"

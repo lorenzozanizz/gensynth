@@ -97,7 +97,8 @@ class LabelingOrchestrator:
             classifier=self.classifier,
             entity_data=entity_scene_data,
             camera=render_cfg.camera,
-            estimate_visibility=self.config.estimate_visibility
+            estimate_visibility=self.config.estimate_visibility,
+            rendered_shot_data=rendered_data_path
         )
 
         if self.config.write_labels and self.writer is not None:

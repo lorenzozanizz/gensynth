@@ -1,9 +1,17 @@
 from typing import Iterable, Any, Union, Callable
 
+import bpy
+
 from .. import Extractor, LabelData
 from ..class_engine import ClassificationEngine
 from ...utils.timer import TimingContext
 
+from ..ray_casting import (union_bounding_boxes, compute_camera_space_boxes, get_minimal_bounding_box_fast,
+                           estimate_visibility_3d, compute_bbox_area, compute_area_ratio)
+from ..class_engine import ClassificationEngine
+
+from .extractor import Extractor
+from .data_structure import *
 
 class PixelMapExtractor(Extractor):
 
@@ -18,12 +26,6 @@ class PixelMapExtractor(Extractor):
         # Per pixel data map. This will be lazily initialized as a numpy array with required
         # pixel information.
         self.data_map = None
-        """
-                # Get rendered image from compositor or render result
-        image = bpy.data.images['Render Result']
-        image.filepath_raw = "/path/to/output.png"
-        image.file_format = 'PNG'
-        image.save()"""
 
     def extract(self,
         visible_objects: dict[Any, list],
@@ -44,78 +46,20 @@ class PixelMapExtractor(Extractor):
         """
         ret_data = LabelData()
 
+        if self.data_map is None:
+
+            pass
+        else:
+            # just a quick check, ensure the dimensions are still the same, just as a
+            # sanity check.
+            if img := bpy.data.images.get(self.path):
+                bpy.data.images.remove(img)
+            elif img := bpy.data.images.get(self._preview_name):
+                bpy.data.images.remove(img)
+            bpy.ops.image.open(filepath=self.path)
+
         with (TimingContext(self.timings, 'labeling')):
-
-            deps = self.ctx.evaluated_depsgraph_get()
-            # Compute raw point clouds corresponding to each computed object.
-            # now convert those point clouds into bound boxes.  (in-place)
-            self.visible_objects = {obj:
-                 get_minimal_bounding_box_fast(points) for obj, points in visible_objects.items()
-            }
-            # There are simple objects visibility, not entities.
-            for obj, bbox in self.visible_objects.items():
-                cls = classifier.map_obj(obj)
-                if not cls:
-                    continue
-
-                orig_bbox = None
-                if estimate_visibility:
-                    vis, orig_bbox = estimate_visibility_3d(
-                        obj, camera, deps, self.ctx, self.ctx.scene.render, bbox, area_func=compute_bbox_area)
-                    self.estimated_visibility[obj] = float(vis)
-                ret_data.add(
-                    Label(obj.name, cls,
-                          bbox=bbox, visibility=self.estimated_visibility.get(obj), annotation_type="bbox",
-                          is_entity=False, ideal_bbox=orig_bbox)
-                )
-            # If required, estimate visibility (No entity mode)
-            if not entity_data:
-                return ret_data
-
-            # Now we have to reconcile multi-object entities. Note the following thing: we have computed
-            # bounding boxes for each smaller point cloud, so now we must join them together.
-            # The operation of joining the clouds before computing the bboxes and computing the total
-            # box is equivalent mathematically!
-            visible_named_objects = {obj.name: (obj, bbox) for obj, bbox in self.visible_objects.items()}
-
-            for entity_name, components in entity_data.items():
-
-                cls = classifier.map_entity(entity_name)
-                if not cls:
-                    continue
-
-                visible_components = [k for k in components if visible_named_objects.get(k) is not None]
-                # If no subcomponent is visible, leave early.
-                if not visible_components:
-                    continue
-                bboxes = [visible_named_objects[name][1] for name in visible_components]
-                if not bboxes:
-                    continue
-                total_visible_bbox = union_bounding_boxes(bboxes)
-                # Note: we are not deleting sub objects, the user may want to differentiate them! e.g. hands in a body
-                self.visible_entities[entity_name] = total_visible_bbox
-
-                # The estimation of visibility is a bit more delicate, we have to unify also camera space 3d boxes.
-                # (which are not the ones obtained empirically with raytracing, but are obtained with .bound_box instead)
-
-                if estimate_visibility:
-                    # We are only using visible objects (there may be more in the entity declaration)
-
-                    camera_space_sub_boxes = compute_camera_space_boxes(
-                        (visible_named_objects[name][0] for name in visible_components),
-                         camera, deps, self.ctx, self.ctx.scene.render)
-
-                    total_camera_bbox = union_bounding_boxes(camera_space_sub_boxes.values())
-                    self.estimated_visibility[entity_name] = compute_area_ratio(
-                            total_visible_bbox, total_camera_bbox,
-                           area_func_1=compute_bbox_area, area_func_2=compute_bbox_area)
-
-                ret_data.add(
-                    Label(entity_name, cls,
-                          bbox=total_visible_bbox,
-                          visibility=self.estimated_visibility.get(entity_name), annotation_type="bbox",
-                          is_entity=True)
-                )
+            pass
 
         return ret_data
 
@@ -149,5 +93,5 @@ class PixelMapExtractor(Extractor):
         """ Get the mappings from object to bounding boxes """
         return self.visible_entities
 
-    def ray_casting_needs():
+    def ray_casting_needs(self):
         pass

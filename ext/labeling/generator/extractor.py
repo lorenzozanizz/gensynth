@@ -24,7 +24,8 @@ class Extractor(metaclass=ABCMeta):
             classifier,
             entity_data,
             camera,
-            estimate_visibility: bool = True, **kwargs
+            estimate_visibility: bool = True,
+            rendered_shot_data: Any = None, **kwargs
         ) -> LabelData:
         """ Extract the geometry of the identified objects and label from the scene, the data is
         then packed into LabelData objects which are iterables over a list of labels including geometry data,
@@ -32,7 +33,14 @@ class Extractor(metaclass=ABCMeta):
 
         Note: LabelData is not specific to the format, but different formats may decide to employ
         different extractors to reduce the computational burden of finding the geometry from the scene
-        :return:
+        :param visible_objects: Mapping which associates visible Blender objects to raw point clouds.
+        :param classifier: Classifier used to extract entities.
+        :param entity_data: Entity data.
+        :param camera: Camera used to extract geometry from.
+        :param estimate_visibility: If true, estimate the visibility of objects in the scene from the
+            canonical bounding box.
+        :param rendered_shot_data: the rendered shot as a Blender Image object, with its raw pixel data
+        :return: A LabelData object.
         """
         pass
 

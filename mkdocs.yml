@@ -32,7 +32,7 @@ nav:
     - Create Pipeline: tutorials/02_create_pipeline.md
     - Labeling: tutorials/03_labeling.md
     - Distributions: tutorials/04_distributions.md
-    - New Labeling Formats: tutorials/05_new_label_format.md
+    - Create Labeling Formats: tutorials/05_new_label_format.md
     - Shader Randomization: tutorials/06_shader_randomize.md
     # ... more files coming
   - Examples:
