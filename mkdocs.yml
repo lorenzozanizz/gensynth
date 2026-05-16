@@ -24,7 +24,7 @@ nav:
     - Reference: architecture/reference_sheet.md
     - Distributions: architecture/distributions.md
     - Label Generation: architecture/label_gen.md
-    - Serialization: architecture/serialization.md
+    - Serialization: architecture/pipeline_serialization.md
     - Operators: architecture/operators.md
     - Logging: architecture/logging.md
     - Pipeline Execution: architecture/pipeline_execution.md
